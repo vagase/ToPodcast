@@ -1,0 +1,37 @@
+{
+
+  //////////////////////////////////////////////////////////////////////////////
+  "server": {
+    "port": 80,
+    "title": "ToPodcast"
+  },
+
+  //////////////////////////////////////////////////////////////////////////////
+  "log4js": {
+    "appenders" : [
+        {
+          "type" : "file",
+          "filename": "logs/alert.log",
+          "category": "alert",
+          "backups" : "10",
+          "maxLogSize" : "1024000"
+        },
+        {
+          "type" : "file",
+          "filename": "logs/http_access.log",
+          "category": "http_access",
+          "backups" : "100",
+          "maxLogSize" : "1024000",
+          "layout" : {
+            "type" : "pattern",
+            "pattern" : "[%d{yyyy-MM-dd hh:mm:ss.SSS}] [%p] %m"
+          }
+        }
+    ],
+    "levels" : {
+      "http_access": "INFO",
+      "alert" : "WARN"
+    }
+  }
+
+}
