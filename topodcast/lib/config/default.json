@@ -3,7 +3,12 @@
   //////////////////////////////////////////////////////////////////////////////
   "server": {
     "port": 80,
-    "title": "ToPodcast"
+    "name": "ToPodcast"
+  },
+
+  //////////////////////////////////////////////////////////////////////////////
+  "var" : {
+    "projectRootDir" : null
   },
 
   //////////////////////////////////////////////////////////////////////////////
@@ -12,7 +17,7 @@
         {
           "type" : "file",
           "filename": "logs/alert.log",
-          "category": "alert",
+          "category": "default_logger",
           "backups" : "10",
           "maxLogSize" : "1024000"
         },
@@ -28,9 +33,10 @@
           }
         }
     ],
+    
     "levels" : {
       "http_access": "INFO",
-      "alert" : "WARN"
+      "default_logger" : "WARN"
     }
   }
 
