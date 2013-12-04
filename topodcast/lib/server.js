@@ -8,12 +8,23 @@ var router = require("./router");
 
 ////////////////////////////////////////////////////////////////////////////////
 
-var logger = getLogger(loggerName(__filename));
+var logger = getLogger(__filename);
 logger.info("Configurations loaded: " + JSON.stringify(CONFIG));
 
 var server = restify.createServer({
-  "name" : CONFIG.server.name
+  name: CONFIG.server.name
 });
+
+server.pre(restify.pre.userAgentConnection());
+server.use(restify.queryParser());
+server.use(restify.bodyParser({
+  rejectUnknown: true
+}));
+server.use(restify.requestLogger());
+//server.use(restify.gzipResponse());
+
+restify.defaultResponseHeaders = function(data) {
+};
 
 server.installRouterOnServer = function(server, routeRules) {
   routeRules.forEach(function(routeRule) {

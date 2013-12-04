@@ -6,14 +6,8 @@ var path    = require("path");
 log4js.configure(CONFIG.log4js);
 
 var getLogger = function(filename) {
-  var logger = log4js.getLogger("default_logger");
-  logger.category = filename;
-  return logger;
-}
-
-var loggerName = function(filename) {
-  return path.relative(CONFIG.var.projectRootDir, filename);
+  var loggerName = path.relative(CONFIG.var.projectRootDir, filename);
+  return log4js.getLoggerNameCategory(loggerName, "default_logger");
 }
 
 exports.getLogger = getLogger;
-exports.loggerName = loggerName;

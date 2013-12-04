@@ -1,4 +1,5 @@
 var path = require("path");
+require("./language-ext");
 
 ////////////////////////////////////////////////////////////////////////////////
 // Load global objects
@@ -12,3 +13,4 @@ if(!config.var.projectRootDir) {
   config.var.projectRootDir = path.dirname(__dirname);
 }
 
+global.util = require("./util");
