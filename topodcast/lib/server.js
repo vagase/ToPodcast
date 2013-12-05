@@ -1,5 +1,5 @@
 // Load global objects
-require("./init");
+require("./helpers/init");
 
 var restify = require('restify');
 var log4js = require("log4js");
