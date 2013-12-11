@@ -1,13 +1,13 @@
-var CONFIG  = require("config");
-var log4js  = require("log4js");
-var path    = require("path");
+var bunyan = require('bunyan');
 
-// log4js configuration
-log4js.configure(CONFIG.log4js);
-
-var getLogger = function(filename) {
-  var loggerName = path.relative(CONFIG.var.projectRootDir, filename);
-  return log4js.getLoggerNameCategory(loggerName, "default_logger");
+// Transform string config into stream objects
+var config = Object.deepClone(CONFIG.logger);
+if (typeof config.streams !== 'undefined') {
+  config.streams.forEach(function(stream) {
+    if (typeof stream.stream !== 'undefined') {
+      stream.stream = eval(stream.stream);
+    }
+  })
 }
 
-exports.getLogger = getLogger;
+module.exports = bunyan.createLogger(config);

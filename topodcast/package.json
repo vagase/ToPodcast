@@ -4,9 +4,8 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "config": "0.4.33",
-    "log4js": "https://github.com/vagase/log4js-node/tarball/master",
     "restify": "2.6.0",
-    "request": "2.27.0"
+    "request": "2.27.0",
+    "bunyan": "0.22.1"
   }
 }

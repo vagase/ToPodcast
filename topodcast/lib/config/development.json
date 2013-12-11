@@ -1,22 +1,15 @@
 {
-
-  //////////////////////////////////////////////////////////////////////////////
   "server": {
     "port": 8000
   },
 
-  //////////////////////////////////////////////////////////////////////////////
-  "log4js": {
-    "appenders" : [
+  "logger": {
+    "streams": [
       {
-        "type" : "console"
+        "level": "trace",
+        "stream": "process.stdout"
       }
-    ],
-
-    "levels" : {
-      "http_access": "TRACE",
-      "default_logger" : "TRACE"
-    }
+    ]
   }
   
 }

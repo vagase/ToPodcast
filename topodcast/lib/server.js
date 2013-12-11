@@ -1,32 +1,23 @@
 // Load global objects
-require("./helpers/init");
+require("./init");
 
 var restify = require('restify');
-var log4js = require("log4js");
 var path = require("path");
 var router = require("./router");
 
-////////////////////////////////////////////////////////////////////////////////
-
-var logger = getLogger(__filename);
-logger.info("Configurations loaded: " + JSON.stringify(CONFIG));
-
 var server = restify.createServer({
-  name: CONFIG.server.name
+  name: CONFIG.server.name,
+  log: logger
 });
 
 server.pre(restify.pre.userAgentConnection());
 server.use(restify.queryParser());
-server.use(restify.bodyParser({
-  rejectUnknown: true
-}));
-server.use(restify.requestLogger());
-//server.use(restify.gzipResponse());
+server.use(restify.bodyParser({ rejectUnknown: true }));
+server.use(restify.fullResponse());
 
-restify.defaultResponseHeaders = function(data) {
-};
+var installRouterOnServer = function() {
+  var routeRules = router.routeRules;
 
-server.installRouterOnServer = function(server, routeRules) {
   routeRules.forEach(function(routeRule) {
     var method = routeRule.method;
     var methods = [];
@@ -59,9 +50,9 @@ server.installRouterOnServer = function(server, routeRules) {
       server[aMethod](options, handlers);
     });
   });
-}
+};
 
-server.installRouterOnServer(server, router.routeRules);
+installRouterOnServer();
 
 server.listen(CONFIG.server.port, function() {
   logger.info('%s starts listening at %s', server.name, server.url);

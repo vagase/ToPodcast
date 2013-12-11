@@ -1,8 +1,6 @@
-var services = require("./videoServices");
-var error = require("../../../error");
-var success = require("../../../success");
-
-var logger = getLogger(__filename);
+var restify = require('restify');
+var services = require("./services");
+var flow = require('../../flows');
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -12,7 +10,7 @@ var validateService = function (req, res, next) {
     return service;
   }
   else {
-    error(req, res, next, "Unsupported service.");
+    flow.error(req, res, next, new InvalidArgumentError("Unsupported video service"));
     return null;
   }
 }
@@ -20,7 +18,7 @@ var validateService = function (req, res, next) {
 ////////////////////////////////////////////////////////////////////////////////
 
 var videos = function (req, res, next) {
-  success(req, res, next, { videoTypes: Object.keys(services) });
+  flow.success(req, res, next, { videoTypes: Object.keys(services) });
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +26,7 @@ var videos = function (req, res, next) {
 videos.service = function (req, res, next) {
   var service = validateService(req, res, next);
   if (service) {
-    success(req, res, next, { supportedTypes: Object.keys(service) });
+    flow.success(req, res, next, { supportedTypes: Object.keys(service) });
   }
 }
 
@@ -43,23 +41,22 @@ videos.service.videoID = function (req, res, next) {
   var processHandlers = function (handlers) {
     var handler = handlers.shift();
     if (handler) {
-      handler(req.params.videoId, function (err, result) {
-        if (!err) {
+      handler(req.params.videoId, function (error, result) {
+        if (!error) {
           Object.extend(resultData, result);
+          processHandlers(handlers);
         }
         else {
-          logger.info(err);
+          flow.error(req, res, next, error);
         }
-
-        processHandlers(handlers);
       });
     }
     else {
       if (Object.keys(resultData).length > 0) {
-        success(req, res, next, resultData);
+        flow.success(req, res, next, resultData);
       }
       else {
-        error(req, res, next, "Invalid video id.");
+        flow.error(req, res, next, new restify.ResourceNotFoundError("Invalid video id"));
       }
     }
   }
@@ -78,7 +75,7 @@ videos.service.videoID = function (req, res, next) {
     });
 
   if (!handlers || !handlers.length) {
-    error(req, res, next, "Invalid video format.");
+    flow.error(req, res, next, new restify.InvalidArgumentError("Invalid video format"));
   }
   else {
     processHandlers(handlers);

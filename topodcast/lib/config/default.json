@@ -1,43 +1,28 @@
 {
-
-  //////////////////////////////////////////////////////////////////////////////
   "server": {
     "port": 80,
     "name": "ToPodcast"
   },
 
-  //////////////////////////////////////////////////////////////////////////////
-  "var" : {
-    "projectRootDir" : null
-  },
-
-  //////////////////////////////////////////////////////////////////////////////
-  "log4js": {
-    "appenders" : [
-        {
-          "type" : "file",
-          "filename": "logs/alert.log",
-          "category": "default_logger",
-          "backups" : "10",
-          "maxLogSize" : "1024000"
-        },
-        {
-          "type" : "file",
-          "filename": "logs/http_access.log",
-          "category": "http_access",
-          "backups" : "100",
-          "maxLogSize" : "1024000",
-          "layout" : {
-            "type" : "pattern",
-            "pattern" : "[%d{yyyy-MM-dd hh:mm:ss.SSS}] [%p] %m"
-          }
-        }
-    ],
-    
-    "levels" : {
-      "http_access": "INFO",
-      "default_logger" : "WARN"
-    }
+  "logger": {
+    "name": "ToPodcast",
+    "streams": [
+      {
+        "name": "default",
+        "level": "info",
+        "type": "rotating-file",
+        "path": "logs/default.log",
+        "period": "1d",
+        "count": 7
+      },
+      {
+        "name": "alert",
+        "level": "warn",
+        "type": "rotating-file",
+        "path": "logs/alert.log",
+        "period": "1d",
+        "count": 7
+      }
+    ]
   }
-
 }
