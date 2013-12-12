@@ -6,7 +6,7 @@
   "logger": {
     "streams": [
       {
-        "level": "trace",
+        "level": "debug",
         "stream": "process.stdout"
       }
     ]

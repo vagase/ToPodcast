@@ -1,4 +1,5 @@
 require("./helpers/language-ext");
+require("./helpers/node-ext");
 
 global.CONFIG = require('./config');
 global.logger = require('./helpers/logger');
