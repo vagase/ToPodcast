@@ -1,3 +1,4 @@
 module.exports = {
-  youku: require("./youku")
+  youku: require("./youku"),
+  56: require('./56')
 };
