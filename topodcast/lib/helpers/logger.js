@@ -53,5 +53,21 @@ module.exports = (function() {
     };
   });
 
+  logger.logError = function(context, error) {
+    logger.warn(context + '\n' + error, 2);
+  };
+
+  logger.logRequestResponseError = function(request, response, error) {
+    if (typeof request !== 'string') {
+      request = JSON.stringify(request);
+    }
+
+    if (typeof response !== 'string') {
+      response = JSON.stringify(response);
+    }
+
+    logger.warn('Request: ' + request + ' - Response: ' + response + '\n' + error.stack, 2);
+  };
+
   return logger;
 })();

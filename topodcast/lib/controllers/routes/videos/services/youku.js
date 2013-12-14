@@ -35,36 +35,50 @@ module.exports = {
 
     var cba = new CallbackAdapter(callback);
 
-    jsonp('http://v.youku.com/player/getPlaylist/VideoIDS/' + videoID + '/Pf/4?__callback=', function(error, param){
-      if (!error) {
-        if (param.data && param.data.length > 0) {
-          var d    = new Date(),
-            fileid = getFileID(param.data[0]['streamfileids']['3gphd'], param.data[0]['seed']),
-            sid    = d.getTime() + "" + (1E3 + d.getMilliseconds()) + "" + (parseInt(Math.random() * 9E3)),
-            k      = param.data[0]['segs']['3gphd'][0]['k'],
-            st     = param.data[0]['segs']['3gphd'][0]['seconds'];
+    var requestURL = 'http://v.youku.com/player/getPlaylist/VideoIDS/' + videoID + '/Pf/4?__callback=';
+    jsonp(requestURL, function(error, param){
 
-          jsonp('http://f.youku.com/player/getFlvPath/sid/'+sid+'_00/st/mp4/fileid/'+fileid+'?K='+k+'&hd=1&myp=0&ts=1156&ypp=0&ymovie=1&callback=', function(error, param){
-            if (!error) {
-              if ( param.length != 0 ) {
-                cba.success({ "mp4": { '&#x9AD8;&#x6E05;': param[0]['server'] }});
-              }
-              else {
-                cba.error(new restify.ResourceNotFoundError("Invalid video id"));
-              }
-            }
-            else {
-              cba.error(error);
-            }
-          });
-        }
-        else {
-          cba.error(new restify.ResourceNotFoundError("Invalid video id"));
-        }
-      }
-      else {
+      if (error) {
         cba.error(error);
+        return;
       }
+
+      try {
+        var d    = new Date(),
+          fileid = getFileID(param.data[0]['streamfileids']['3gphd'], param.data[0]['seed']),
+          sid    = d.getTime() + "" + (1E3 + d.getMilliseconds()) + "" + (parseInt(Math.random() * 9E3)),
+          k      = param.data[0]['segs']['3gphd'][0]['k'],
+          st     = param.data[0]['segs']['3gphd'][0]['seconds'];s
+      }
+      catch (error)  {
+        var error = new restify.InvalidContentError("Error occures while parsing [fileid,sid,k,st]. " + error);
+        logger.logRequestResponseError(requestURL, param, error);
+        cba.error(error);
+        return;
+      }
+
+      requestURL = 'http://f.youku.com/player/getFlvPath/sid/'+sid+'_00/st/mp4/fileid/'+fileid+'?K='+k+'&hd=1&myp=0&ts=1156&ypp=0&ymovie=1&callback=';
+      jsonp(requestURL, function(error, param){
+        if (error) {
+          cba.error(error);
+          return;
+        }
+
+        try {
+          var result = param[0]['server'];
+          if (!result) {
+            throw new restify.InvalidContentError('Result is null - param[0][\'server\']');
+          }
+        }
+        catch (error) {
+          error = new restify.InvalidContentError(error);
+          logger.logRequestResponseError(requestURL, param, error);
+          cba.error(error);
+          return;
+        }
+
+        cba.success({ "mp4": { '&#x9AD8;&#x6E05;': result }});
+      });
     });
   }
 }

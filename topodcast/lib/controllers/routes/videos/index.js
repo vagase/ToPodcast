@@ -10,7 +10,9 @@ var validateService = function (req, res, next) {
     return service;
   }
   else {
-    flow.error(req, res, next, new InvalidArgumentError("Unsupported video service"));
+    var error = new InvalidArgumentError("Unsupported video service");
+    logger.logRequestResponseError(req.url, null, error);
+    flow.error(req, res, next, error);
     return null;
   }
 }
@@ -38,6 +40,22 @@ videos.service.videoID = function (req, res, next) {
 
   var resultData = {};
 
+  var internalErrorToResponseError = function(internalError) {
+    var result;
+
+    if (internalError instanceof restify.InvalidContentError) {
+      result = new restify.ResourceNotFoundError('Invalid video id');
+    }
+    else if (internalError instanceof restify.HttpError) {
+      result = new restify.InternalError('External http call error');
+    }
+    else {
+      result = new restify.InternalError('Server internal error');
+    }
+
+    return result;
+  };
+
   var processHandlers = function (handlers) {
     var handler = handlers.shift();
     if (handler) {
@@ -47,21 +65,17 @@ videos.service.videoID = function (req, res, next) {
           processHandlers(handlers);
         }
         else {
-          flow.error(req, res, next, error);
+          flow.error(req, res, next, internalErrorToResponseError(error));
         }
       });
     }
     else {
-      if (Object.keys(resultData).length > 0) {
-        flow.success(req, res, next, resultData);
-      }
-      else {
-        flow.error(req, res, next, new restify.ResourceNotFoundError("Invalid video id"));
-      }
+      flow.success(req, res, next, resultData);
     }
   }
 
   var handlers = Object.keys(service)
+    // Get corresponding handlers
     .map(function (format) {
       if (!req.params.format || req.params.format === format) {
         return service[format];
@@ -75,7 +89,9 @@ videos.service.videoID = function (req, res, next) {
     });
 
   if (!handlers || !handlers.length) {
-    flow.error(req, res, next, new restify.InvalidArgumentError("Invalid video format"));
+    var error = new restify.InvalidArgumentError("Invalid video format");
+    logger.logRequestResponseError(req.url, null, error);
+    flow.error(req, res, next, error);
   }
   else {
     processHandlers(handlers);

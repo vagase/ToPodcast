@@ -6,7 +6,8 @@ module.exports = function(url, callback, handler) {
 
   var cba = new CallbackAdapter(callback);
 
-  request(url+back, function(error, response, body){
+  var requestURL = url + back;
+  request(requestURL, function(error, response, body){
     if (!error && response.statusCode == 200) {
       var reg = new RegExp('^\\s*' + back + '\\s*\\(\\s*(.*)\\s*\\)\\s*;?\\s*$');
       var matches = reg.exec(body);
@@ -16,16 +17,22 @@ module.exports = function(url, callback, handler) {
           json = JSON.parse(matches[1]);
         }
         catch (e) {
-          cba.error(new restify.InvalidContentError("Invalid JSON format"));
+          e = new restify.InvalidContentError('Response is invalid JSON format.' + e);
+          logger.logRequestResponseError(requestURL, body, e);
+          cba.error(e);
         }
         cba.success(json);
       }
       else {
-        cba.error(new restify.InvalidContentError("No callback function found in repsone body"));
+        var e = new restify.InvalidContentError("No callback function found in repsone body.");
+        logger.logRequestResponseError(requestURL, body, e);
+        cba.error(e);
       }
     }
     else {
-      cba.error(restify.codeToHttpError(response.statusCode, error ? error.toString() : null));
+      var e = new restify.codeToHttpError(response.statusCode, error ? error.toString() : null);
+      logger.logRequestResponseError(requestURL, body, e);
+      cba.error(e);
     }
   });
 }
