@@ -3,13 +3,22 @@
     "port": 8000
   },
 
-  "logger": {
-    "streams": [
-      {
-        "level": "debug",
-        "stream": "process.stdout"
-      }
-    ]
+  "log": {
+    "defaultLogger": {
+      "streams": [
+        {
+          "level": "debug",
+          "stream": "process.stdout"
+        }
+      ]
+    },
+    "httpAccessLogger": {
+      "streams": [
+        {
+          "level": "debug",
+          "stream": "process.stdout"
+        }
+      ]
+    }
   }
-  
 }

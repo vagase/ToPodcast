@@ -4,25 +4,36 @@
     "name": "ToPodcast"
   },
 
-  "logger": {
-    "name": "ToPodcast",
-    "streams": [
-      {
-        "name": "default",
-        "level": "info",
-        "type": "rotating-file",
-        "path": "logs/default.log",
-        "period": "1d",
-        "count": 7
-      },
-      {
-        "name": "alert",
-        "level": "warn",
-        "type": "rotating-file",
-        "path": "logs/alert.log",
-        "period": "1d",
-        "count": 7
-      }
-    ]
+  "log": {
+    "defaultLogger": {
+      "name": "ToPodcast",
+      "streams": [
+        {
+          "level": "info",
+          "type": "rotating-file",
+          "path": "logs/default.log",
+          "period": "1d",
+          "count": 15
+        },
+        {
+          "level": "warn",
+          "type": "rotating-file",
+          "path": "logs/alert.log",
+          "period": "1d",
+          "count": 15
+        }
+      ]
+    },
+    "httpAccessLogger": {
+      "name": "httpAccess",
+      "streams": [
+        {
+          "type": "rotating-file",
+          "path": "logs/http_access.log",
+          "period": "1d",
+          "count": 30
+        }
+      ]
+    }
   }
 }

@@ -2,8 +2,8 @@
 require("./init");
 
 var restify = require('restify');
-var path = require("path");
-var router = require("./router");
+var path = require('path');
+var router = require('./router');
 
 var server = restify.createServer({
   name: CONFIG.server.name,
@@ -14,6 +14,11 @@ server.pre(restify.pre.userAgentConnection());
 server.use(restify.queryParser());
 server.use(restify.bodyParser({ rejectUnknown: true }));
 server.use(restify.fullResponse());
+
+// add httpAccessLogger
+server.on('after', restify.auditLogger({
+  log: require('./helpers/log').httpAccessLogger
+}));
 
 var installRouterOnServer = function() {
   var routeRules = router.routeRules;
