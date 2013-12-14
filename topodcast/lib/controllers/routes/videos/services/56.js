@@ -26,7 +26,7 @@ module.exports = {
           return
         }
 
-        cba.success(urls);
+        cba.success({'mp4' : urls});
       },
       'jsonp_dfInfo'
     )

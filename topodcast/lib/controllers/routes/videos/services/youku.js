@@ -3,8 +3,8 @@ var restify = require('restify');
 
 module.exports = {
   m3u8: function(videoID, callback) {
-    callback(undefined, {
-      "m3u8" : {
+    var cba = new CallbackAdapter(callback);
+    cba.success({ 'm3u8' : {
         '&#x6807;&#x6E05;': '/player/getM3U8/vid/' + videoID + '/type/flv/ts/' + (((new Date()).getTime()/1000).toString()|0) + '/v.m3u8',
         '&#x9AD8;&#x6E05;': '/player/getM3U8/vid/' + videoID + '/type/mp4/ts/' + (((new Date()).getTime()/1000).toString()|0) + '/v.m3u8',
         '&#x8D85;&#x6E05;': '/player/getM3U8/vid/' + videoID + '/type/hd2/ts/' + (((new Date()).getTime()/1000).toString()|0) + '/v.m3u8'
