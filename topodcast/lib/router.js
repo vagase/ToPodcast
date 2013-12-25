@@ -1,6 +1,6 @@
-var index = require("./controllers/routes/index");
-var health = require("./controllers/routes/health");
-var apiVideos = require("./controllers/routes/videos");
+var index = require("./controllers/index");
+var health = require("./controllers/health");
+var apiVideos = require("./controllers/video");
 
 exports.routeRules = [
   {
@@ -15,20 +15,20 @@ exports.routeRules = [
   },
 
   //////////////////////////////////////////////////////////////////////////////
-  // api - videos
+  // api - video
   {
     method : "GET",
-    path : "/videos",
+    path : "/video",
     handlers : apiVideos
   },
   {
     method : "GET",
-    path : "/videos/:service",
+    path : "/video/:service",
     handlers : apiVideos.service
   },
   {
     method : "GET",
-    path : "/videos/:service/:videoId",
+    path : "/video/:service/:videoId",
     handlers : apiVideos.service.videoID
   }
 ];

@@ -1,6 +1,6 @@
 {
   "name": "ToPodcast",
-  "description": "Transform online videos into postcast",
+  "description": "Transform online video into postcast",
   "version": "0.0.1",
   "private": true,
   "dependencies": {
