@@ -1,13 +1,11 @@
 var request = require('request');
-var restify = require('restify');
+var Error = require('../error');
 
 module.exports = function(url, callback, handler) {
   var back = handler || 'cb_' + new Date().getTime() + Math.random().toString().replace('.','');
 
-  var cba = new CallbackAdapter(callback);
-
-  var requestURL = url + back;
-  request(requestURL, function(error, response, body){
+  var url = url + back;
+  request(url, function(error, response, body){
     if (!error && response.statusCode == 200) {
       var reg = new RegExp('^\\s*' + back + '\\s*\\(\\s*(.*)\\s*\\)\\s*;?\\s*$');
       var matches = reg.exec(body);
@@ -17,22 +15,17 @@ module.exports = function(url, callback, handler) {
           json = JSON.parse(matches[1]);
         }
         catch (e) {
-          e = new restify.InvalidContentError('Response is invalid JSON format.' + e);
-          logger.logRequestResponseError(requestURL, body, e);
-          cba.error(e);
+          callback(Error.InvalidContentError(e, 'Response is invalid JSON format', Error.errorBodyReqRes(url, body)));
         }
-        cba.success(json);
+
+        callback(null, json);
       }
       else {
-        var e = new restify.InvalidContentError("No callback function found in repsone body.");
-        logger.logRequestResponseError(requestURL, body, e);
-        cba.error(e);
+        callback(Error.InvalidContentError(null, 'No callback function found in repsone body', Error.errorBodyReqRes(url, body)));
       }
     }
     else {
-      var e = new restify.codeToHttpError(response.statusCode, error ? error.toString() : null);
-      logger.logRequestResponseError(requestURL, body, e);
-      cba.error(e);
+      callback(Error.HttpError(response.statusCode, error, 'jsonp external http error', Error.errorBodyReqRes(url, body)));
     }
   });
 }

@@ -1,5 +1,5 @@
 var vendors = require("./vendors");
-var restify = require('restify');
+var Error = require('../../error');
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,9 +30,7 @@ VideoService.getServiceWithName = function(name) {
     return service;
   }
   else {
-    var error = new restify.InvalidArgumentError("Unsupported video service: " + name);
-    logger.warn(error);
-    throw error;
+    throw Error.InvalidArgumentError('Unsupported video service: ' + name);
   }
 };
 
@@ -44,9 +42,7 @@ VideoService.prototype.getSupportedFormats = function () {
 
 VideoService.prototype.getVideoInfo = function(videoId, format, callback) {
   if (!videoId) {
-    var error = new restify.InvalidArgumentError("Missing video id parameter");
-    logger.warn(error);
-    throw error;
+    throw Error.InvalidArgumentError("Missing video id parameter");
   }
 
   // If no format parameter, then get all supported formats.
@@ -88,7 +84,7 @@ VideoService.prototype.getHandlersForFormats = function (formats) {
       result.push(handler);
     }
     else {
-      throw new restify.InvalidArgumentError('Unsupported video format: ' + format);
+      throw Error.InvalidArgumentError('Unsupported video format: ' + format);
     }
   });
 

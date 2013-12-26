@@ -1,4 +1,4 @@
-var restify = require('restify');
+var Error = require('../../../error');
 var VideoServiceFormatHandler = require('../video_service_format_handler');
 
 var mp4Handler = new VideoServiceFormatHandler('mp4');
@@ -15,7 +15,7 @@ mp4Handler.process = function(videoId, callback) {
       this.returnData(urls, callback);
     }
     catch (error) {
-      callback(new restify.InvalidContentError('Error occurs while parsing 56 jsonp response data. ' + error));
+      callback(Error.InvalidContentError(error, 'Error occurs while parsing 56 jsonp response data', Error.errorBodyReqRes(url, data)));
     }
   });
 };

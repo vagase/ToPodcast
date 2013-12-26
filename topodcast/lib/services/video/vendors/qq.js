@@ -1,4 +1,4 @@
-var restify = require('restify');
+var Error = require('../../../error');
 var VideoServiceFormatHandler = require('../video_service_format_handler');
 
 var mp4Handler = new VideoServiceFormatHandler('mp4');
@@ -11,7 +11,7 @@ mp4Handler.process = function(videoId, callback) {
       this.returnData(urls, callback);
     }
     catch(error) {
-      callback(new restify.InvalidContentError("Error ocures while parsing qq jsnp response data. " + error));
+      callback(Error.InvalidContentError(error, 'Error ocures while parsing qq jsnp response data', Error.errorBodyReqRes(url, data)));
     }
   });
 }

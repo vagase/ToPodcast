@@ -1,4 +1,4 @@
-var restify = require('restify');
+var Error = require('../error');
 
 var Handler = function() {
 }
@@ -8,8 +8,8 @@ Handler.prototype.execute = function(req, res, next) {
     this.process(req, res, next);
   }
   catch (error) {
-    logger.logRequestResponseError("Unexpceted error: " + error);
-    next(new restify.InternalError('Internal server error'));
+    logger.logRequestResponseError(req, res, Error.InternalServerError(error, 'Unexpected error'));
+    next(Error.InternalServerError(null, 'Internal server error'));
   }
 }
 
@@ -19,6 +19,7 @@ Handler.prototype.success = function(req, res, next, data) {
 }
 
 Handler.prototype.error = function(req, res, next, error) {
+  logger.logRequestResponseError(req, res, error);
   next(Handler.error.processError(error));
 }
 

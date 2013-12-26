@@ -1,4 +1,4 @@
-var restify = require('restify');
+var Error = require('../../../error');
 var VideoServiceFormatHandler = require('../video_service_format_handler');
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ mp4Handler.process = function(videoId, callback) {
         st     = data.data[0]['segs']['3gphd'][0]['seconds'];s
     }
     catch (error)  {
-      callback(new restify.InvalidContentError("Error occures while parsing [fileid,sid,k,st]. " + error));
+      callback(Error.InvalidContentError(error, 'Error occures while parsing [fileid,sid,k,st]', Error.errorBodyReqRes(url, data)));
       return;
     }
 
@@ -56,7 +56,7 @@ mp4Handler.process = function(videoId, callback) {
       try {
         var result = data[0]['server'];
         if (!result) {
-          throw new restify.InvalidContentError('Result is null - param[0][\'server\']');
+          throw Error.InvalidContentError(null, 'Result is null - param[0][\'server\']', Error.errorBodyReqRes(url, data));
         }
 
         this.returnData({ '&#x9AD8;&#x6E05;': result }, callback);

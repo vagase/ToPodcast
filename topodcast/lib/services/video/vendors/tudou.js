@@ -1,4 +1,4 @@
-var restify = require('restify');
+var Error = require('../../../error');
 var VideoServiceFormatHandler = require('../video_service_format_handler');
 
 var m3u8Handler = new VideoServiceFormatHandler('m3u8');
@@ -30,7 +30,7 @@ mp4Handler.process = function(videoId, callback) {
       this.returnData(urls, callback);
     }
     catch (error) {
-      callback(new restify.InvalidContentError('Error occures while parsing tudou jsonp response data. ' + error));
+      callback(Error.InvalidContentError(error, 'Error occures while parsing tudou jsonp response data', Error.errorBodyReqRes(url, data)));
     }
   });
 }

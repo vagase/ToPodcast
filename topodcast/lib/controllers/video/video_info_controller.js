@@ -1,5 +1,6 @@
 var Handler = require('../handler');
 var VideoService = require('../../services/video/video_service');
+var Error = require('../../error');
 
 var videoInfoController= new Handler();
 
@@ -23,18 +24,18 @@ videoInfoController.process = function (req, res, next) {
 videoInfoController.processError = function(error) {
   var result;
 
-  if (error instanceof restify.InvalidArgumentError) {
+  if (error instanceof Error.errors.InvalidArgumentError) {
     result = error;
   }
-  else if (error instanceof restify.InvalidContentError) {
-    result = new restify.ResourceNotFoundError('Invalid video id');
+  else if (error instanceof Error.errors.InvalidContentError) {
+    result = Error.ResourceNotFoundError(null, 'Invalid video id');
   }
-  else if (error instanceof restify.HttpError) {
-    result = new restify.InternalError('External http call error');
+  else if (error instanceof Error.errors.HttpError) {
+    result = Error.InternalServerError(null, 'External http call error');
   }
   else {
     // Unknown errors
-    result = new restify.InternalError('Internal server error');
+    result = Error.InternalServerError('Internal server error');
   }
 
   return result;
