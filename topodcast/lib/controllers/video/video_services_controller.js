@@ -1,13 +1,12 @@
-var util = require('util');
 var Handler = require('../handler');
-var VideoService = require('../../services/video/service');
+var VideoService = require('../../services/video/video_service');
 
-var VideoServicesController = function() {};
-util.inherits(VideoServicesController, Handler);
-module.exports = VideoServicesController;
+var videoServiceController = new Handler();
 
-VideoServicesController.prototype.process = function(req, res, next) {
+videoServiceController.process = function(req, res, next) {
   this.success(req, res, next, {
     videoTypes: VideoService.getServicesName()
   });
 }
+
+module.exports = videoServiceController;

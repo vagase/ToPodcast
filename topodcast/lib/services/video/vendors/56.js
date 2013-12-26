@@ -1,34 +1,23 @@
-var jsonp = require('../../../../helpers/jsonp');
 var restify = require('restify');
+var VideoServiceFormatHandler = require('../video_service_format_handler');
 
-module.exports = {
-  mp4: function(videoID, callback) {
-    var cba = new CallbackAdapter(callback);
+var mp4Handler = new VideoServiceFormatHandler('mp4');
 
-    var requestURL = 'http://vxml.56.com/ipad/'+ videoID +'/?src=site&callback=';
+mp4Handler.process = function(videoId, callback) {
+  var url = 'http://vxml.56.com/ipad/'+ videoId +'/?src=site&callback=';
+  this.getJSONPData(url, 'jsonp_dfInfo', callback, function(data) {
+    try {
+      var urls = {};
+      for(var i= data.df.length-1; i>=0; i--){
+        urls[data.df[i]['type']] = data.df[i]['url'];
+      }
 
-    jsonp(requestURL, function(error, param){
-        if (error) {
-          cba.error(error);
-          return;
-        }
+      this.returnData(urls, callback);
+    }
+    catch (error) {
+      callback(new restify.InvalidContentError('Error occurs while parsing 56 jsonp response data. ' + error));
+    }
+  });
+};
 
-        try {
-          var urls = {};
-          for(var i= param.df.length-1; i>=0; i--){
-            urls[param.df[i]['type']] = param.df[i]['url'];
-          }
-        }
-        catch (error) {
-          error = new restify.InvalidContentError('Error occurs while parsing 56 jsonp response data. ' + error);
-          logger.logRequestResponseError(requestURL, param, error);
-          cba.error(error);
-          return
-        }
-
-        cba.success({'mp4' : urls});
-      },
-      'jsonp_dfInfo'
-    )
-  }
-}
+module.exports = [mp4Handler];

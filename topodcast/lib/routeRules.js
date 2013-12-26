@@ -1,17 +1,13 @@
-var index = require("./controllers/index");
-var health = require("./controllers/health");
-var apiVideos = require("./controllers/video");
-
-exports.routeRules = [
+module.exports = [
   {
     method : "GET",
     path : "/",
-    handlers : index
+    controller : require("./controllers/index")
   },
   {
     method : "GET",
     path : "/health",
-    handlers : health
+    controller : require("./controllers/health")
   },
 
   //////////////////////////////////////////////////////////////////////////////
@@ -19,16 +15,16 @@ exports.routeRules = [
   {
     method : "GET",
     path : "/video",
-    handlers : apiVideos
+    controller : require("./controllers/video/video_services_controller")
   },
   {
     method : "GET",
     path : "/video/:service",
-    handlers : apiVideos.service
+    controller : require("./controllers/video/video_service_info_controller")
   },
   {
     method : "GET",
     path : "/video/:service/:videoId",
-    handlers : apiVideos.service.videoID
+    controller : require("./controllers/video/video_info_controller")
   }
 ];
