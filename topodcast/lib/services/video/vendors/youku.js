@@ -6,9 +6,9 @@ var VideoServiceFormatHandler = require('../video_service_format_handler');
 var m3u8Handler = new VideoServiceFormatHandler('m3u8');
 m3u8Handler.process = function(videoId, callback) {
   this.returnData({
-    '&#x6807;&#x6E05;': '/player/getM3U8/vid/' + videoID + '/type/flv/ts/' + (((new Date()).getTime()/1000).toString()|0) + '/v.m3u8',
-    '&#x9AD8;&#x6E05;': '/player/getM3U8/vid/' + videoID + '/type/mp4/ts/' + (((new Date()).getTime()/1000).toString()|0) + '/v.m3u8',
-    '&#x8D85;&#x6E05;': '/player/getM3U8/vid/' + videoID + '/type/hd2/ts/' + (((new Date()).getTime()/1000).toString()|0) + '/v.m3u8'
+    '&#x6807;&#x6E05;': '/player/getM3U8/vid/' + videoId + '/type/flv/ts/' + (((new Date()).getTime()/1000).toString()|0) + '/v.m3u8',
+    '&#x9AD8;&#x6E05;': '/player/getM3U8/vid/' + videoId + '/type/mp4/ts/' + (((new Date()).getTime()/1000).toString()|0) + '/v.m3u8',
+    '&#x8D85;&#x6E05;': '/player/getM3U8/vid/' + videoId + '/type/hd2/ts/' + (((new Date()).getTime()/1000).toString()|0) + '/v.m3u8'
   }, callback);
 }
 
@@ -37,7 +37,7 @@ mp4Handler.getFileID = function(fileid, seed){
 }
 
 mp4Handler.process = function(videoId, callback) {
-  var url = 'http://v.youku.com/player/getPlaylist/VideoIDS/' + videoID + '/Pf/4?__callback=';
+  var url = 'http://v.youku.com/player/getPlaylist/VideoIDS/' + videoId + '/Pf/4?__callback=';
   this.getJSONPData(url, null, callback, function(data){
     try {
       var d    = new Date(),
@@ -51,12 +51,12 @@ mp4Handler.process = function(videoId, callback) {
       return;
     }
 
-    var url = 'http://f.youku.com/player/getFlvPath/sid/'+sid+'_00/st/mp4/fileid/'+fileid+'?K='+k+'&hd=1&myp=0&ts=1156&ypp=0&ymovie=1&callback=';
-    this.getJSONPData(url, null, callback, function(data) {
+    var url2 = 'http://f.youku.com/player/getFlvPath/sid/'+sid+'_00/st/mp4/fileid/'+fileid+'?K='+k+'&hd=1&myp=0&ts=1156&ypp=0&ymovie=1&callback=';
+    this.getJSONPData(url2, null, callback, function(data) {
       try {
         var result = data[0]['server'];
         if (!result) {
-          throw Error.InvalidContentError(null, 'Result is null - param[0][\'server\']', Error.errorBodyReqRes(url, data));
+          throw Error.InvalidContentError(null, 'Result is null - param[0][\'server\']', Error.errorBodyReqRes(url2, data));
         }
 
         this.returnData({ '&#x9AD8;&#x6E05;': result }, callback);

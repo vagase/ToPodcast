@@ -12,13 +12,6 @@
         }
       ]
     },
-    "httpAccessLogger": {
-      "streams": [
-        {
-          "level": "debug",
-          "stream": "process.stdout"
-        }
-      ]
-    }
+    "httpAccessLogger": null
   }
 }

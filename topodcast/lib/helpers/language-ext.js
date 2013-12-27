@@ -79,3 +79,16 @@ Object.deepExtend = function(target) {
     }
   });
 }
+
+String.prototype.nthIndexOf = function(substr, nth) {
+  var i = -1;
+  while(nth--) {
+    i = this.indexOf(substr, i+1);
+
+    if (i == -1) {
+      break;
+    }
+  }
+
+  return i;
+}

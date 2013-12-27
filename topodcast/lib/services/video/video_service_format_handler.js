@@ -1,3 +1,4 @@
+var jsonp = require('../../helpers/jsonp');
 VideoServiceFormatHandler = function(format) {
   this.format = format;
 }

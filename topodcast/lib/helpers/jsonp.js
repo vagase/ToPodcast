@@ -25,7 +25,7 @@ module.exports = function(url, callback, handler) {
       }
     }
     else {
-      callback(Error.HttpError(response.statusCode, error, 'jsonp external http error', Error.errorBodyReqRes(url, body)));
+      callback(Error.HttpError(error, response.statusCode, 'jsonp external http error', Error.errorBodyReqRes(url, body)));
     }
   });
 }

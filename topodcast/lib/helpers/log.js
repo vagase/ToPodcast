@@ -1,25 +1,26 @@
 var bunyan = require('bunyan');
+var util = require('util');
+
+var BunyanLoggerEx = function() {
+  bunyan.apply(this, arguments);
+}
+util.inherits(BunyanLoggerEx, bunyan);
 
 /**
- * Custom bunyan logger, extend its behaviour, as adding location field and handy log apis.
- * @param logger
- */
-var customBunyanLogger = function(logger) {
-  var methodNames = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
-  var originalMethods = {};
+ * Override 'trace', 'debug', 'info', 'warn', 'error', 'fatal' methods.
+  */
 
-  methodNames.forEach(function(method) {
-    originalMethods[method] = logger[method];
-  });
+var overrideMethods = false;
+if (overrideMethods) {
+  ['trace', 'debug', 'info', 'warn', 'error', 'fatal'].forEach(function(method){
+    BunyanLoggerEx.prototype[method] = function() {
+      var logger = this;
 
-  methodNames.forEach(function(method) {
-    logger.method = function() {
       var stackback = 1;
-
       var vars = Array.prototype.slice.call(arguments);
-
       if (vars.length > 1) {
         var tmp = vars.pop();
+        // If the last argument is number, that means the log stack roll back level.
         if (typeof tmp === 'number') {
           stackback = tmp;
         }
@@ -32,68 +33,118 @@ var customBunyanLogger = function(logger) {
       var fileLineNumber = stack.getFileName() + ':' + stack.getLineNumber();
       logger.fields['location'] = fileLineNumber;
 
-      originalMethods[method].apply(logger, vars);
+      bunyan.prototype[method].apply(logger, vars);
     };
   });
-
-  logger.logError = function(context, error) {
-    logger.warn(context + '\n' + error, 2);
-  };
-
-  logger.logRequestResponseError = function(request, response, error) {
-    if (typeof request !== 'string') {
-      request = JSON.stringify(request);
-    }
-
-    if (typeof response !== 'string') {
-      response = JSON.stringify(response);
-    }
-
-    logger.warn('Request: ' + request + ' - Response: ' + response + '\n' + error.stack, 2);
-  };
 }
 
-/**
- * Create bunyan logger from configuration.
- * @param config
- * @returns {*}
- */
-var createBunyanLogger = function(config) {
-  // Transform string config into stream objects
-  config = Object.deepClone(config);
-  if (typeof config.streams !== 'undefined') {
-    config.streams.forEach(function(stream) {
-      if (typeof stream.stream !== 'undefined') {
-        var realStream = eval(stream.stream);
-
-        if (stream.stream === 'process.stdout' || stream.stream === 'process.stderr') {
-          // Use bunyan-prettystream instead of raw stdout for pretty printing directly.
-          var PrettyStream = require('bunyan-prettystream');
-          var prettyStdOut = new PrettyStream();
-          prettyStdOut.pipe(realStream);
-          realStream = prettyStdOut;
-        }
-
-        stream.stream = realStream;
-      }
-    });
+BunyanLoggerEx.prototype.logError = function (error, message, body) {
+  if (!error) {
+    throw new Error('error parameter MUST not be null');
   }
 
-  return bunyan.createLogger(config);
+  var content = message ? message : '';
+
+  if (body) {
+    if (content) {
+      content += ' ';
+    }
+    content += body;
+  }
+
+  if (content) {
+    content += '\n';
+  }
+
+  content += error.stack;
+
+  this.warn(content, 2);
+}
+
+BunyanLoggerEx.prototype.logErrorWithReqRes = function(error, req, res) {
+  if (!error) {
+    throw new Error('error parameter MUST not be null');
+  }
+
+  var content = '';
+
+  if (req) {
+    content += 'Request: ' + req;
+  }
+
+  if (res) {
+    if (content) {
+      content+= '\n';
+    }
+
+    content += 'Response:' + res;
+  }
+
+  if (content) {
+    content += '\n';
+  }
+  content += error.stack;
+
+  this.warn(content, 2);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ *  Parse config into bunyan friendly format.
+ * */
+var parseConfig = function(config) {
+  if (!config) {
+    return null;
+  }
+
+  try {
+    var result = Object.deepClone(config);
+
+    // Transform string config into stream objects
+    if (typeof result.streams !== 'undefined') {
+      result.streams.forEach(function(stream) {
+        if (typeof stream.stream !== 'undefined') {
+          var realStream = eval(stream.stream);
+
+          if (stream.stream === 'process.stdout' || stream.stream === 'process.stderr') {
+            // Use bunyan-prettystream instead of raw stdout for pretty printing directly.
+            var PrettyStream = require('bunyan-prettystream');
+            var prettyStdOut = new PrettyStream();
+            prettyStdOut.pipe(realStream);
+            realStream = prettyStdOut;
+          }
+
+          stream.stream = realStream;
+        }
+      });
+    }
+
+    return result;
+  }
+  catch (error) {
+    console.error('Error occurred while parsing log config: ' + error.stack);
+    throw error;
+  }
 }
 
 /**
- * Create bunyan logger from configuration and custom it.
- * @param config
- * @returns {*}
+ * Logger creation factory method.
  */
-var createCustomBunyanLogger = function(config) {
-  var logger = createBunyanLogger(config);
-  customBunyanLogger(logger);
+var createLogger = function(config, loggerClass) {
+  var loggerConfig = parseConfig(config);
+  var logger;
+
+  if (loggerConfig) {
+    logger = new loggerClass(loggerConfig);
+  }
+
   return logger;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 module.exports = {
-  'defaultLogger': createCustomBunyanLogger(CONFIG.log.defaultLogger),
-  'httpAccessLogger': createBunyanLogger(CONFIG.log.httpAccessLogger)
-}
+  'defaultLogger': createLogger(CONFIG.log.defaultLogger, BunyanLoggerEx),
+  'httpAccessLogger': createLogger(CONFIG.log.httpAccessLogger, bunyan)
+};

@@ -7,10 +7,6 @@ var createError = function(ErrorClass, internalError, message, body) {
 
   var context = message ? message : '';
 
-  if (internalError) {
-    context += '[' + internalError + ']';
-  }
-
   if (body) {
     if (context) {
       context += ' - ';
@@ -19,7 +15,17 @@ var createError = function(ErrorClass, internalError, message, body) {
     context += body;
   }
 
-  return new ErrorClass(context);
+  var result = new ErrorClass(context);
+
+  if (internalError) {
+    result.stack = result.name + ": " + result.message + '\n' + internalError.stack;
+  }
+  else {
+    var stack = result.stack;
+    result.stack = result.name + ": " + result.message + '\n' + stack.substr(stack.nthIndexOf('\n', 3) + 1);
+  }
+
+  return result;
 }
 
 var InvalidArgumentError = function(message, body) {
@@ -30,7 +36,7 @@ var InvalidContentError = function(internalError, message, body) {
   return createError(restify.InvalidContentError, internalError, message, body);
 }
 
-var HttpError = function(statusCode, internalError, message, body) {
+var HttpError = function(internalError, statusCode, message, body) {
   return restify.codeToHttpError(statusCode, message, body)
 }
 

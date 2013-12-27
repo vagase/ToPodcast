@@ -5,19 +5,21 @@ var Error = require('../../error');
 var videoInfoController= new Handler();
 
 videoInfoController.process = function (req, res, next) {
+  var controller = this;
+
   try {
     var service = VideoService.getServiceWithName(req.params.service);
     service.getVideoInfo(req.params.videoId, req.params.format, function(error, videoInfo){
       if (error)  {
-        this.error(req, res, next, error);
+        controller.error(req, res, next, error);
       }
       else {
-        this.success(req, res, next, videoInfo);
+        controller.success(req, res, next, videoInfo);
       }
     });
   }
   catch (error) {
-    this.error(req, res, next, error);
+    controller.error(req, res, next, error);
   }
 }
 
@@ -35,7 +37,7 @@ videoInfoController.processError = function(error) {
   }
   else {
     // Unknown errors
-    result = Error.InternalServerError('Internal server error');
+    result = Error.InternalServerError(null, 'Unexpected error');
   }
 
   return result;

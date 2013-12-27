@@ -8,8 +8,10 @@ Handler.prototype.execute = function(req, res, next) {
     this.process(req, res, next);
   }
   catch (error) {
-    logger.logRequestResponseError(req, res, Error.InternalServerError(error, 'Unexpected error'));
-    next(Error.InternalServerError(null, 'Internal server error'));
+    error = Error.InternalServerError(error, 'Unexpected error');
+    logger.logErrorWithReqRes(error, req.getId());
+    next(error);
+
   }
 }
 
@@ -19,8 +21,8 @@ Handler.prototype.success = function(req, res, next, data) {
 }
 
 Handler.prototype.error = function(req, res, next, error) {
-  logger.logRequestResponseError(req, res, error);
-  next(Handler.error.processError(error));
+  logger.logErrorWithReqRes(error, req.getId());
+  next(this.processError(error));
 }
 
 /**

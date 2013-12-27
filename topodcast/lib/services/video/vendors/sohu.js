@@ -29,7 +29,7 @@ var processFormat = function(format, videoID, callback) {
     }
     catch (error) {
       error = new Restify.InvalidContentError("Error ocures while parsing sohu jsonp response data. " + error);
-      logger.logRequestResponseError(requestURL, param, error);
+      logger.logErrorWithReqRes(requestURL, param, error);
       cba.error(error);
       return;
     }
@@ -60,7 +60,7 @@ module.exports = {
       }
       catch (error) {
         error = new Restify.InvalidContentError("Error ocures while parsing sohu jsonp response data. " + error);
-        logger.logRequestResponseError(requestURL, param, error);
+        logger.logErrorWithReqRes(requestURL, param, error);
         cba.error(error);
         return;
       }

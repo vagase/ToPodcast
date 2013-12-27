@@ -15,9 +15,12 @@ server.use(restify.bodyParser({ rejectUnknown: true }));
 server.use(restify.fullResponse());
 
 // add httpAccessLogger
-server.on('after', restify.auditLogger({
-  log: require('./helpers/log').httpAccessLogger
-}));
+var httpAccessLogger = require('./helpers/log').httpAccessLogger;
+if (httpAccessLogger) {
+  server.on('after', restify.auditLogger({
+    log: httpAccessLogger
+  }));
+}
 
 installRouteRules(require('./routeRules'), server);
 

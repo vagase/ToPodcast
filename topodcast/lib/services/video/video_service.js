@@ -78,8 +78,9 @@ VideoService.prototype.getVideoInfo = function(videoId, format, callback) {
 VideoService.prototype.getHandlersForFormats = function (formats) {
   var result = [];
 
+  var _handlers = this.handlers;
   formats.forEach(function(format) {
-    var handler = this.handlers[format];
+    var handler = _handlers[format];
     if (handler) {
       result.push(handler);
     }
